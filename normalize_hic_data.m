@@ -1,5 +1,5 @@
 function normalized_hic_data = normalize_hic_data(raw_hic_data,norm_vector,resolution)
-%Normalizes Hi-C contact data via the norm_vector.
+%Normalizes Hi-C contact data.
 %
 %As described in Rao et al 2014 (supplemental data README)
 
