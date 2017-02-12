@@ -1,12 +1,17 @@
 %% Plot Hi-C (Un-normalized) contacts for a genomic region
-resolution = 5; %in kb
-chromosome = 8;
-width = 2.5e6;
-position = tss_table{353,3};%[38268656 75262618 128748315];
-gene_name = tss_table{353,1};
+resolution = 25; %in kb
+chromosome = 18;
+width = 2e6;
+position = 65184000;%tss_table{353,3};%[38268656 75262618 128748315];
+gene_name = {'DSEL'};%tss_table{353,1};
 cell_lines = {'HUVEC','K562','IMR90','GM12878_primary'};
 
-ds = temp_get_hic_data_multiple_lines(position,gene_name,chromosome,cell_lines,resolution,width);
+ds = temp_get_hic_data_multiple_lines('position',position,...
+    'gene_name',gene_name,...
+    'chromosome',chromosome,...
+    'cell_lines',cell_lines,...
+    'resolution',resolution,...
+    'width',width);
 temp_compare_hic_maps(ds)
 
 %% Read in the file
