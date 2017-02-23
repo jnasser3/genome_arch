@@ -1,10 +1,28 @@
 %% Plot Hi-C (Un-normalized) contacts for a genomic region
 resolution = 25; %in kb
-chromosome = 18;
 width = 2e6;
-position = 65184000;%tss_table{353,3};%[38268656 75262618 128748315];
-gene_name = {'DSEL'};%tss_table{353,1};
+gene_name = {'DSEL'};
 cell_lines = {'HUVEC','K562','IMR90','GM12878_primary','NHEK'};
+
+% Read rnaseq data and map cell line names
+rnaseq2hic_cell_map = containers.Map(...
+    {'Gm12878_avg_FPKM','Huvec_avg_FPKM','K562_avg_FPKM','Nhek_avg_FPKM','Nhlf_avg_FPKM'},...
+    {'GM12878_primary','HUVEC','K562','NHEK','IMR90'});
+
+expr = readtable('~/Documents/genome_arch/data/annotated_gene_expression.txt',...
+    'Delimiter','\t');
+for ii = 1:length(expr.Properties.VariableNames)
+    if any(strcmp(expr.Properties.VariableNames(ii),rnaseq2hic_cell_map.keys))
+        expr.Properties.VariableNames{ii} = rnaseq2hic_cell_map(expr.Properties.VariableNames{ii});
+    end
+end
+
+idx = strcmp(gene_name,expr{:,'gene_name'});
+position = expr{idx,'tss'};
+chromosome = expr{idx,'Reference'}; chromosome = chromosome{1};
+
+% position = 65184000;
+% chromosome = 18;
 
 ds = temp_get_hic_data_multiple_lines('position',position,... 
     'gene_name',gene_name,...
@@ -12,27 +30,45 @@ ds = temp_get_hic_data_multiple_lines('position',position,...
     'cell_lines',cell_lines,...
     'resolution',resolution,...
     'width',width);
-temp_compare_hic_maps(ds)
+%temp_compare_hic_maps(ds)
 
-%% Compute averages
+% Compare simple to wtd average
 target_line = {'GM12878_primary'};
 predictor_lines = setdiff(cell_lines,target_line);
+[wts,simple_average,wtd_average] = compare_simple_to_wtd_average(ds,expr,target_line,predictor_lines,gene_name{1})
 
-target_idx = strcmp({ds.cell_line},target_line);
-ds_target = ds(target_idx);
-
-ds_pred = ds(~target_idx);
-
-%compute simple average profile
-simple_average = calculate_average_hic_profile_1d(ds_pred);
-
-%compute wtd average based on expression
-expr = readtable('~/Documents/genome_arch/data/annotated_gene_expression.txt');
-expr = table2struct(expr);
-
-wts = calculate_wtd_avg_wts_expression(expr,'GM12878',{'HUVEC','NHLF','K562','NHEK'},'DSEL');
-wtd_average = calculate_average_hic_profile_1d(ds_pred,wts)
-
+%% Compute averages
+% 
+% 
+% target_idx = strcmp({ds.cell_line},target_line);
+% ds_target = ds(target_idx);
+% 
+% ds_pred = ds(~target_idx);
+% 
+% %compute simple average profile
+% simple_average = calculate_average_hic_profile_1d(ds_pred);
+% 
+% %compute wtd average based on expression
+% %apply cell line map
+% expr = readtable('~/Documents/genome_arch/data/annotated_gene_expression.txt',...
+%     'Delimiter','\t');
+% for ii = 1:length(expr.Properties.VariableNames)
+%     if any(strcmp(expr.Properties.VariableNames(ii),rnaseq2hic_cell_map.keys))
+%         expr.Properties.VariableNames{ii} = rnaseq2hic_cell_map(expr.Properties.VariableNames{ii});
+%     end
+% end
+% %expr = table2struct(expr);
+% 
+% %'GM12878'
+% %{'HUVEC','NHLF','K562','NHEK'}
+% wts = calculate_wtd_avg_wts_expression(expr,target_line,predictor_lines,'DSEL');
+% wtd_average = calculate_average_hic_profile_1d(ds_pred,'wts',wts);
+% 
+% temp_compare_hic_maps(ds)
+% hold on
+% plot(simple_average.genome_coordinates,simple_average.hic_contacts,'DisplayName','simple_average')
+% hold on
+% plot(wtd_average.genome_coordinates,wtd_average.hic_contacts,'DisplayName','wtd_average')
 %% Read GTF file
 % annotobj = GTFAnnotation('~/Documents/genome_arch/data/rnaseq/caltech_ucsc_data/wgEncodeCaltechRnaSeqGm12878R2x75Il200GeneGencV3cRep1V3.gtf');
 % gtf = getData(annotobj);
