@@ -21,6 +21,8 @@ if isempty(arg.wts)
         'wt',temp_wts);
 else
     wts = arg.wts;
+    idx = ismember({wts.cell_line},arg.cell_lines);
+    wts = wts(idx);
 end
 
 %Get support of avg_profile as union of all provided supports

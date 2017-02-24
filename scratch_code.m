@@ -1,7 +1,7 @@
 %% Plot Hi-C (Un-normalized) contacts for a genomic region
 resolution = 25; %in kb
 width = 2e6;
-gene_name = {'DSEL'};
+gene_name = {'MYC'};
 cell_lines = {'HUVEC','K562','IMR90','GM12878_primary','NHEK'};
 
 % Read rnaseq data and map cell line names
@@ -35,7 +35,9 @@ ds = temp_get_hic_data_multiple_lines('position',position,...
 % Compare simple to wtd average
 target_line = {'GM12878_primary'};
 predictor_lines = setdiff(cell_lines,target_line);
-[wts,simple_average,wtd_average] = compare_simple_to_wtd_average(ds,expr,target_line,predictor_lines,gene_name{1})
+
+%%
+[wts,simple_average,wtd_average,text_box] = compare_simple_to_wtd_average(ds,expr,target_line,predictor_lines,gene_name{1});
 
 %% Compute averages
 % 

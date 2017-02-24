@@ -26,8 +26,14 @@ for ii = 1:length(pred_line)
     idx = strcmpi(this_line,expr_table.Properties.VariableNames(predictor_idx));
     wts(ii).cell_line = pred_line{ii};
     wts(ii).wt = wts_temp(idx);
+    wts(ii).expr = pred_expr(idx);
 end
 
+%Add in target line with no weight
+m = length(pred_line) + 1;
+wts(m).cell_line = target_line{1};
+wts(m).wt = NaN;
+wts(m).expr = target_expr;
 
 end
 
